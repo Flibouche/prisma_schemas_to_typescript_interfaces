@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisma schemas to TypeScript interfaces</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            gap: 10px;
+            background: linear-gradient(180deg, #0B0E14 0%, #141824 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 50px;
+        }
+
+        textarea {
+            width: 600px;
+            height: 400px;
+            resize: none;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #1B1F2A;
+            border: 1px solid #2A2F3D;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        h1,
+        h2,
+        p {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #A0A8C2;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #C0C6D6;
+        }
+
+        .arrow {
+            font-size: 3rem;
+            color: #A0A8C2;
+            margin: 0 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+        <h1>Prisma schema to interface</h1>
+        <p>Place your Prisma schema in the left textarea</p>
+    </div>
+
+    <div class="container">
+        <div>
+            <h2>Prisma Schema</h2>
+            <textarea name="" id="prisma-schema"></textarea>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div>
+            <h2>Typescript Interface</h2>
+            <textarea name="" id="typescript-interface"></textarea>
+        </div>
+    </div>
+
+</body>
+
+<script>
+
+    // Je sélectionne les deux zones de texte
+    const prismaSchema = document.getElementById('prisma-schema');
+    const typescriptInterface = document.getElementById('typescript-interface');
+
+    // J'ajoute un écouteur d'événement sur la zone de texte du schéma prisma
+    prismaSchema.addEventListener('input', () => {
+        // Je récupère le contenu de la zone de texte et je découpe les lignes
+        const schema = prismaSchema.value;
+        const lines = schema.split('\n');
+
+        // Je déclare les variables qui vont contenir le nom de l'interface et les champs
+        let interfaceName = "";
+        let fields = [];
+
+        // Pour chaque lignes du schéma
+        lines.forEach(line => {
+            // Je découpe les mots de la ligne
+            const words = line.trim().split(/\s+/);
+
+            // Si le mot est "model" et qu'il y a un nom de modèle
+            if (words[0] === "model" && words[1]) {
+                // Alors le nom de l'interface est le nom du modèle
+                interfaceName = words[1];
+                // Si le mot n'est pas un commentaire, ni une ligne vide, ni une ligne de modèle
+            } else if (!words[0].startsWith("@@") && words[0] !== "model" && !words[0].startsWith("//") && words.length >= 2) {
+                // Alors je récupère le nom du champ et le type du champ
+                let fieldName = words[0];
+                let fieldType = words[1]
+                    .replace("String", "string")
+                    .replace("Int", "number")
+                    .replace("Float", "number")
+                    .replace("Boolean", "boolean")
+                    .replace("DateTime", "Date");
+
+                // Si le type du champ contient un point d'interrogation (champ nullable)
+                if (fieldType.includes("?")) {
+                    fieldType = fieldType.replace("?", "");
+                    fieldName = `${fieldName}?`;
+                }
+
+                // Ensuite, j'ajoute le champ à la liste des champs
+                fields.push(`${fieldName}: ${fieldType};`);
+            }
+        });
+
+        // Si le nom de l'interface est défini
+        if (interfaceName) {
+            // Alors j'ajoute le code de l'interface dans la zone de texte de l'interface
+            typescriptInterface.value = `export interface ${interfaceName} {\n    ${fields.join('\n    ')}\n}`;
+            // Autrement je vide la zone de texte de l'interface
+        } else {
+            typescriptInterface.value = "";
+        }
+    });
+
+</script>
+
+</html>
