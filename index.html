@@ -127,7 +127,8 @@
                     .replace("Int", "number")
                     .replace("Float", "number")
                     .replace("Boolean", "boolean")
-                    .replace("DateTime", "Date");
+                    .replace("DateTime", "Date")
+                    .toLowerCase();
 
                 // Si le type du champ contient un point d'interrogation (champ nullable)
                 if (fieldType.includes("?")) {
