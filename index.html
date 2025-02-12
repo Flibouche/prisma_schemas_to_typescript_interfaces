@@ -131,7 +131,7 @@
 
                 // Si le type du champ contient un point d'interrogation (champ nullable)
                 if (fieldType.includes("?")) {
-                    fieldType = fieldType.replace("?", "");
+                    fieldType = fieldType.replace("?", " | null");
                     fieldName = `${fieldName}?`;
                 }
 
